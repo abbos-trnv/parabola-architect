@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f5ef"><title>Архитектор парабол — Бюро форм</title><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head><body>
+<header><div class="wrap top"><a class="brand" href="./"><svg viewBox="0 0 34 30" aria-hidden="true"><path d="M1 28Q17 -24 33 28H22Q17 8 12 28Z"/></svg>Бюро форм</a><span>Алгебра <b>⁄</b> 9 класс</span></div></header>
+<main class="wrap">
+<section class="poster"><div class="copy"><h1>Архитектор<br><em>парабол</em></h1><p>Научись по уравнению предсказывать форму параболы, положение вершины и пересечение с осью <i>y</i>.</p></div><svg id="sculpture" aria-label="Архитектурный этюд из параболических арок" viewBox="0 0 480 240" role="img"></svg></section>
+<nav id="tabs" aria-label="Выбрать опыт"></nav>
+<section class="lab"><article class="lesson"><div class="kicker" id="kicker"></div><h2 id="title"></h2><p id="explain"></p><div class="equation" aria-label="Общее уравнение">y = <span data-term="a">a</span>x² + <span data-term="b">b</span>x + <span data-term="c">c</span></div><div id="sliders"></div><section class="challenge"><strong id="challengeTitle"></strong><p id="challengeText"></p><div id="buttons"></div><div id="feedback" role="status"></div></section></article>
+<article class="graph"><div class="graphhead"><div><small>ТЕКУЩИЙ ГРАФИК</small><h3 id="numeric"></h3></div><button id="reset" title="Сбросить значения текущего опыта">↺ Сброс</button></div><svg id="plot" role="img" viewBox="0 0 600 308"></svg><div class="graphfoot"><label><input type="checkbox" id="compare" checked> Исходная y = x²</label><span id="vertex"></span></div><p class="observation" id="observation"></p></article></section>
+</main></body></html>
