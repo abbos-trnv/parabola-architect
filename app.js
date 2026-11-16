@@ -26,7 +26,7 @@ const config={
 };
 const keys=['a','b','c'], order=[...keys,'lab'];
 const base=()=>({a:1,b:0,c:0});
-let mode='a', mission='', complete=new Set(), values=Object.fromEntries(order.map(k=>[k,base()]));
+let mode='a', mission='', complete=new Set(CourseProgress.goals.arch.filter(step=>CourseProgress.has('arch',step))), values=Object.fromEntries(order.map(k=>[k,base()]));
 values.a.a=1.5;
 const state=()=>values[mode];
 function equation({a,b,c}){
@@ -82,7 +82,7 @@ function check(){
  const {a,b,c}=state();
  const valid=mode==='a'?a<0&&a>-1:mode==='b'?b===-4:c===-2;
  if(!valid){feedback(mode==='a'?(a>=0?'Нужен отрицательный a. Попробуй значение между −1 и 0.':'Ветви идут вниз. Приблизь a к нулю, чтобы расширить параболу.'):mode==='b'?'Подставь x = 2 в равенство 2 = −b/2. Какой знак получится у b?':'При x = 0 остаётся только c. Поставь его на отметку −2.');return;}
- complete.add(mode);tabs();feedback(mode==='a'?'Верно. При −1 < a < 0 ветви идут вниз, а парабола шире исходной.':mode==='b'?'Верно. При b = −4 вершина находится в точке (2; −4).':'Верно. Каждая точка параболы опустилась на две единицы.',true);
+ complete.add(mode);CourseProgress.mark('arch',mode);courseFooter();tabs();feedback(mode==='a'?'Верно. При −1 < a < 0 ветви идут вниз, а парабола шире исходной.':mode==='b'?'Верно. При b = −4 вершина находится в точке (2; −4).':'Верно. Каждая точка параболы опустилась на две единицы.',true);
  byId('buttons').replaceChildren();action(mode==='c'?'Открыть мастерскую →':'Следующий опыт →',()=>select(order[order.indexOf(mode)+1]));
 }
 function challenge(){
@@ -92,7 +92,7 @@ function challenge(){
  byId('challengeText').textContent=mission==='boat'?'Катер шириной 4 м и высотой 3,2 м идёт по центру. Проверь верхние углы при x = 2 и x = 6.':mission==='bridge'?'Построй арку с опорами (0; 0), (8; 0) и вершиной (4; 4).':'Примени три коэффициента, чтобы рассчитать мост и проверить габариты катера.';
  if(!mission)action('Построить мост →',()=>{mission='bridge';challenge();graph();});
  else if(mission==='bridge')action('Проверить арку →',()=>{const {a,b,c}=state();if(c!==0)feedback('Левая опора в начале координат. Проверь c.');else if(a>=0||b!==-8*a)feedback('Для арки ветви должны идти вниз, а ось −b/(2a) должна проходить через x = 4.');else if(a!==-.25)feedback('Опоры совпали. Подставь вершину в равенство 4 = 16a + 4b.');else{mission='boat';challenge();graph();feedback('Арка рассчитана. Проверь, хватит ли места у краёв катера.',true);}});
- else {action('Пройдёт',()=>feedback('Над краями всего 3 м, хотя в центре есть 4 м. Сравни 3 с высотой катера.'));action('Заденет арку',()=>{complete.add('lab');mission='';tabs();challenge();graph();feedback('Верно! Над краями не хватает 20 см. Теперь можно продолжить эксперименты.',true);});}
+ else {action('Пройдёт',()=>feedback('Над краями всего 3 м, хотя в центре есть 4 м. Сравни 3 с высотой катера.'));action('Заденет арку',()=>{complete.add('lab');CourseProgress.mark('arch','lab');courseFooter();mission='';tabs();challenge();graph();feedback('Верно! Над краями не хватает 20 см. Теперь можно продолжить эксперименты.',true);});}
 }
 function render(){
  tabs();const lab=mode==='lab', active=lab?keys:[mode],spec=config[mode];
@@ -106,5 +106,10 @@ function render(){
 function select(key){mode=key;render();}
 byId('tabs').onclick=e=>{const tab=e.target.closest('[data-key]');if(tab)select(tab.dataset.key);};
 byId('reset').onclick=()=>{values[mode]=base();if(mission==='boat'&&mode==='lab')mission='bridge';render();};
-byId('compare').onchange=graph;illustrate();render();
+byId('compare').onchange=graph;illustrate();mode=order.find(key=>!complete.has(key)) || 'a';render();courseFooter();
 
+
+function courseFooter(){
+ const n=CourseProgress.count('arch');
+ byId('courseEnd').innerHTML='<span>'+ (n===4?'Урок пройден. ':'')+'Выполнено заданий: '+n+' из 4</span><a href="index.html">К карте курса →</a>';
+}
