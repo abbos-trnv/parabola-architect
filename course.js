@@ -36,6 +36,7 @@ function lesson(id,step){
  const e=exercisesHere[step],points=id==='points',vals=[0,0];
  document.title=info.title+' — Графика';
  course.innerHTML='<nav class="crumb"><a href="index.html">← Карта курса</a><span>От чертежа к функции · Урок '+(index+1)+' из 3</span></nav><div class="practicehead"><small>'+info.topic.toUpperCase()+'</small><h1>'+info.title+'</h1></div><section class="worksheet"><div class="exercise"><small>ЗАДАНИЕ '+(step+1)+' ИЗ 2</small><h2>'+e.title+'</h2><p>'+e.prompt+'</p><div id="adjust"></div><button class="action" id="verify">Проверить →</button><p id="response" role="status"></p></div><div class="sheet"><div class="graphhead"><small>ЧЕРТЁЖ</small><b id="readout"></b></div><svg id="drawing" viewBox="0 0 450 284" role="img" aria-label="Координатный чертёж задания"></svg></div></section>';
+ course.querySelector('.worksheet').insertAdjacentHTML('beforebegin',theoryInLesson(points?'points':e.id));
  const specs=points?[['x',-6,6,1],['y',-4,4,1]]:[['k',-1,2,.25],['b',-2,3,.5]].slice(0,step+1);
  const adjust=document.getElementById('adjust'),btn=document.getElementById('verify'),response=document.getElementById('response');
  specs.forEach(([k,min,max,unit],i)=>{const label=document.createElement('label');label.className='slider';label.innerHTML='<span class="shead">'+k+'<output>0</output></span><input aria-label="'+k+'" type="range" min="'+min+'" max="'+max+'" step="'+unit+'" value="0">';adjust.append(label);
@@ -70,11 +71,13 @@ function route(){
   const step=exercises[key].findIndex(e=>e.id===task);
   lesson(key,step<0?undefined:step);
  }else if(section==='bank'||section==='saved')library(section);
+ else if(section==='theory')theoryLibrary();
  else if(section==='results')results();
  else if(section==='bench')testBench();
  else dashboard();
  window.scrollTo(0,0);
 }
 window.addEventListener('hashchange',route);window.addEventListener('pageshow',e=>{if(e.persisted)route();});route();
+
 
 

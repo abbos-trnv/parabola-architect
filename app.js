@@ -101,6 +101,7 @@ function challenge(){
  else {action('Пройдёт',()=>feedback('Над краями всего 3 м, хотя в центре есть 4 м. Сравни 3 с высотой катера.'));action('Заденет арку',()=>{complete.add('lab');CourseProgress.mark('arch','lab');courseFooter();mission='';tabs();challenge();graph();feedback('Верно! Над краями не хватает 20 см. Теперь можно продолжить эксперименты.',true);});}
 }
 function render(){
+ byId('archTheory').innerHTML=theoryInLesson(mode);
  tabs();byId('plot').classList.toggle('movable',['b','c'].includes(mode));const lab=mode==='lab', active=lab?keys:[mode],spec=config[mode];
  byId('kicker').textContent=lab?'СВОБОДНЫЙ ОПЫТ':'ОПЫТ '+(order.indexOf(mode)+1)+' ИЗ 3';
  byId('title').textContent=spec.title;byId('explain').textContent=spec.explain+(mode==='b'?' Двигай палец по графику влево или вправо.':mode==='c'?' Потяни график вверх или вниз.':'');
@@ -140,4 +141,5 @@ drawingSurface.onpointerdown=event=>{
 drawingSurface.onpointermove=event=>{
  if(drawingSurface.hasPointerCapture(event.pointerId))moveVertex(event);
 };
+
 

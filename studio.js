@@ -2,7 +2,8 @@ const studioIcons={
  home:'<path d="m3 10 9-7 9 7v11h-6v-7H9v7H3z"/>',bank:'<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>', saved:'<path d="M6 3h12v18l-6-4-6 4z"/>',results:'<path d="M3 21h18M5 16V9m7 7V3m7 13v-5"/>',search:'<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/>',arrow:'<path d="M4 12h15m-6-6 6 6-6 6"/>',book:'<path d="M3 4q5-2 9 2 4-4 9-2v14q-5-2-9 2-4-4-9-2zM12 6v13"/>',point:'<path d="M4 20h16M8 22V3m-3 4 3-4 3 4"/><circle cx="16" cy="9" r="3"/>',line:'<path d="M2 20h20M4 18 19 5"/><circle cx="19" cy="5" r="2"/>',arch:'<path d="M2 19Q12-12 22 19M6 19Q12 0 18 19"/>',rotate:'<path d="M4 9a9 9 0 1 1 0 7m0-12v5h5"/>',check:'<path d="m3 12 6 6L21 5"/>'};
 function icon(name){return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+studioIcons[name]+'</svg>';}
 studioIcons.bench='<path d="M2 16Q12 -3 22 16M2 20h20M6 15h10l-2 3H8z"/>';
-const sections=[['home','Моё обучение'],['bank','Банк задач'],['bench','Испытания'],['saved','Избранное'],['results','Мой прогресс']];
+studioIcons.theory=studioIcons.book;
+const sections=[['home','Моё обучение'],['theory','Теория'],['bank','Банк задач'],['bench','Испытания'],['saved','Избранное'],['results','Мой прогресс']];
 const studioHeader=document.querySelector('header');
 studioHeader.innerHTML='<a class="studio-brand" href="index.html"><svg class="graph-logo" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="12" fill="#205953"/><path d="M7 28Q15 -12 22 22T34 12" fill="none" stroke="#e8ff9a" stroke-width="3.4"/><circle cx="22" cy="22" r="3.5" fill="#f5ab75"/></svg>Графика</a><nav aria-label="Разделы платформы">'+sections.map(([key,title])=>'<a data-section="'+key+'" href="index.html'+(key==='home'?'':'#'+key)+'">'+icon(key)+'<span>'+title+'</span></a>').join('')+'</nav><div class="rail-foot">'+icon('book')+' Алгебра · 9 класс</div>';
 function highlightSection(key){studioHeader.querySelectorAll('[data-section]').forEach(a=>{if(a.dataset.section===key)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});}
@@ -74,6 +75,7 @@ function results(){
  const count=catalogue.filter(([t,k])=>CourseProgress.has(t,k)).length;
  course.innerHTML='<div class="viewhead"><small>ЛИЧНЫЙ КАБИНЕТ</small><h1>Мой прогресс</h1><p>Решено '+count+' из 8 задач. Результаты сохраняются в этом браузере.</p></div><div class="result-list">'+lessons.map(l=>'<article><h2>'+l.topic+'</h2><progress value="'+CourseProgress.count(l.id)+'" max="'+CourseProgress.goals[l.id].length+'"></progress>'+catalogue.filter(([t])=>t===l.id).map(([t,id,name])=>'<a href="'+taskLink(t,id)+'"><span>'+(CourseProgress.has(t,id)?'✓':'○')+' '+name+'</span> →</a>').join('')+'</article>').join('')+'</div>';
 }
+
 
 
 
