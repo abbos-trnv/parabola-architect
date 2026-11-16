@@ -6,26 +6,12 @@ const lessons = [
 ];
 const exercises = {
  points:[
-  {id:'left',title:'Отметь первую опору', prompt:'На плане опора A стоит на 3 клетки левее и на 2 клетки выше начала координат. Выставь её x и y.', target:[-3,2], hint:'Левее нуля — отрицательный x. Выше нуля — положительный y.', answer:'Опора A стоит в точке (−3; 2). Сначала читаем горизонтальную координату, затем вертикальную.'},
+  {id:'left',title:'Отметь первую опору', prompt:'На плане опора A стоит на 3 клетки левее и на 2 клетки выше начала координат. Нажми на нужный узел сетки или выставь x и y ползунками.', target:[-3,2], hint:'Левее нуля — отрицательный x. Выше нуля — положительный y.', answer:'Опора A стоит в точке (−3; 2). Сначала читаем горизонтальную координату, затем вертикальную.'},
   {id:'right',title:'Прочитай план',prompt:'Ромб B показывает вторую опору. Считай её координаты с плана и совмести с ним фиолетовую точку.',target:[4,-1],hint:'Отсчитай клетки от начала координат до B. Точка правее оси y и ниже оси x.',answer:'Верно: B = (4; −1). Обе опоры размечены.'}],
  line:[
   {id:'slope',title:'Соедини две площадки',prompt:'Пандус начинается в (0; 0) и заканчивается в (4; 2). Подбери наклон k в формуле y = kx.',target:[.5,0],hint:'Раздели подъём на горизонтальное расстояние: k = (2 − 0) / (4 − 0).',answer:'k = 0,5. На каждые два метра по горизонтали приходится метр подъёма.'},
   {id:'offset',title:'Подними начало пандуса',prompt:'Новый вход находится в (0; 1), верхняя площадка — в (4; 3). Выставь k и b, чтобы прямая прошла через обе точки.',target:[.5,1],hint:'В точке x = 0 высота равна b. Наклон равен разности высот, делённой на 4.',answer:'y = 0,5x + 1. Наклон сохранился, а весь пандус поднялся на метр.'}]
 };
-function home(){
- document.title='От чертежа к функции — Бюро форм';
- const n=lessons.filter(l=>CourseProgress.finished(l.id)).length;
- const next=lessons.find(l=>!CourseProgress.finished(l.id)) || lessons[0];
- const started=lessons.some(l=>CourseProgress.count(l.id)>0);
- course.innerHTML='<section class="cover"><div><small>ПРАКТИЧЕСКИЙ КУРС · АЛГЕБРА</small><h1>От чертежа<br><em>к функции</em></h1><p>Спроектируй переправу: разметь опоры, рассчитай подъём и построй арку. В каждом уроке формула становится частью чертежа.</p><a class="action" href="'+next.url+'">'+(n===3?'Повторить курс':started?'Продолжить курс':'Начать курс')+' →</a></div><figure><img src="arch.svg" alt="Модель арочной переправы из параллельных рёбер"><figcaption>Проект курса <b>Арочная переправа</b></figcaption></figure></section>'+
- '<div class="planhead"><h2>Карта курса</h2><div class="meter"><progress max="3" value="'+n+'" aria-label="Пройденные уроки"></progress><span>'+n+' / 3 пройдено</span></div></div><section class="route">'+lessons.map((l,i)=>{
- const count=CourseProgress.count(l.id),total=CourseProgress.goals[l.id].length;
- return '<a class="unit u'+i+'" href="'+l.url+'"><div class="unitart"><span>'+l.symbol+'</span>'+thumbnail(i)+'</div><div class="unitcopy"><small>УРОК 0'+(i+1)+' · '+l.topic.toUpperCase()+'</small><h3>'+l.title+'</h3><p>'+l.summary+'</p><strong>'+(count===total?'✓ Пройдено · Повторить':count?'Продолжить · '+count+' / '+total:'Открыть урок')+' →</strong></div></a>';}).join('')+'</section><p class="storage">Пройденные задания сохраняются в этом браузере.</p>';
-}
-function thumbnail(i){
- const figures=['<path d="M35 67h48V30h81v23" fill="none" stroke-dasharray="4 4"/><circle cx="83" cy="30" r="6"/><circle cx="164" cy="53" r="6"/>','<path d="M20 68h166V18Z" fill="#f3ad74"/><path d="M30 65h145m-100-9v9m35-19v19m35-30v30"/>','<path d="M22 70Q100 -60 178 70h-16Q100 -20 40 70Z" fill="#c0a5de"/>'];
- return '<svg viewBox="0 0 200 85" aria-hidden="true"><g stroke="currentColor" stroke-width="2">'+figures[i]+'</g></svg>';
-}
 function fmt(v){return String(v).replace("-", "−").replace(".",",");}
 function sketch(id,step,vals){
  const [v,w]=vals, X=x=>216+31*x, Y=y=>141-31*y;
@@ -48,18 +34,47 @@ function lesson(id,step){
  const info=lessons.find(l=>l.id===id), exercisesHere=exercises[id], index=lessons.indexOf(info);
  if(step===undefined){step=exercisesHere.findIndex(e=>!CourseProgress.has(id,e.id));if(step<0)step=0;}
  const e=exercisesHere[step],points=id==='points',vals=[0,0];
- document.title=info.title+' — Бюро форм';
+ document.title=info.title+' — Графика';
  course.innerHTML='<nav class="crumb"><a href="index.html">← Карта курса</a><span>От чертежа к функции · Урок '+(index+1)+' из 3</span></nav><div class="practicehead"><small>'+info.topic.toUpperCase()+'</small><h1>'+info.title+'</h1></div><section class="worksheet"><div class="exercise"><small>ЗАДАНИЕ '+(step+1)+' ИЗ 2</small><h2>'+e.title+'</h2><p>'+e.prompt+'</p><div id="adjust"></div><button class="action" id="verify">Проверить →</button><p id="response" role="status"></p></div><div class="sheet"><div class="graphhead"><small>ЧЕРТЁЖ</small><b id="readout"></b></div><svg id="drawing" viewBox="0 0 450 284" role="img" aria-label="Координатный чертёж задания"></svg></div></section>';
  const specs=points?[['x',-6,6,1],['y',-4,4,1]]:[['k',-1,2,.25],['b',-2,3,.5]].slice(0,step+1);
  const adjust=document.getElementById('adjust'),btn=document.getElementById('verify'),response=document.getElementById('response');
  specs.forEach(([k,min,max,unit],i)=>{const label=document.createElement('label');label.className='slider';label.innerHTML='<span class="shead">'+k+'<output>0</output></span><input aria-label="'+k+'" type="range" min="'+min+'" max="'+max+'" step="'+unit+'" value="0">';adjust.append(label);
  label.querySelector('input').oninput=event=>{vals[i]=+event.target.value;label.querySelector('output').value=fmt(vals[i]);response.textContent='';repaint();};});
  function repaint(){document.getElementById('drawing').innerHTML=sketch(id,step,vals);document.getElementById('readout').textContent=points?'('+fmt(vals[0])+'; '+fmt(vals[1])+')':'y = '+fmt(vals[0])+'x'+(vals[1]<0?' − ':' + ')+fmt(Math.abs(vals[1]));}
+ if(points){
+  const drawing=document.getElementById('drawing');
+  drawing.classList.add('selectable');
+  const move=event=>{
+   const sliders=adjust.querySelectorAll('input');
+   if(sliders[0].disabled)return;
+   const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(drawing.getScreenCTM().inverse());
+   [Math.round((point.x-216)/31),Math.round((141-point.y)/31)].forEach((value,i)=>{
+    const el=sliders[i];el.value=String(value);el.dispatchEvent(new Event('input'));
+   });
+  };
+  drawing.onpointerdown=e=>{drawing.setPointerCapture(e.pointerId);move(e);};
+  drawing.onpointermove=e=>{if(drawing.hasPointerCapture(e.pointerId))move(e);};
+ }
  repaint();
  btn.onclick=()=>{if(vals.some((v,i)=>v!==e.target[i])){response.textContent=e.hint;return;}
  CourseProgress.mark(id,e.id);response.textContent=e.answer;adjust.querySelectorAll('input').forEach(el=>el.disabled=true);
  btn.textContent=step===0?'Следующее задание →':'К уроку «'+lessons[index+1].title+'» →';
  btn.onclick=()=>{if(!step)lesson(id,1);else location.href=lessons[index+1].url;window.scrollTo(0,0);};};
 }
-function route(){const key=location.hash.slice(1);if(Object.hasOwn(exercises,key))lesson(key);else home();window.scrollTo(0,0);}
+function route(){
+ const [key,task]=location.hash.slice(1).split('/');
+ const section=sections.some(([id])=>id===key)?key:'home';
+ highlightSection(section);
+ course.classList.toggle('dashboard',section==='home' && !Object.hasOwn(exercises,key));
+ if(Object.hasOwn(exercises,key)){
+  const step=exercises[key].findIndex(e=>e.id===task);
+  lesson(key,step<0?undefined:step);
+ }else if(section==='bank'||section==='saved')library(section);
+ else if(section==='results')results();
+ else if(section==='bench')testBench();
+ else dashboard();
+ window.scrollTo(0,0);
+}
 window.addEventListener('hashchange',route);window.addEventListener('pageshow',e=>{if(e.persisted)route();});route();
+
+

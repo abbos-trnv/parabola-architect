@@ -49,6 +49,7 @@ function graph(){
  const {a,b,c}=state(), vx=a===0?0:-b/(2*a),vy=(a*vx+b)*vx+c;
  const width=600,height=308, cx=300,cy=154;
  const unit=Math.min(27,128/Math.max(1,Math.abs(vy),Math.abs(c)),275/Math.max(1,Math.abs(vx)));
+ byId('plot').dataset.unit=unit;
  const X=x=>cx+x*unit,Y=y=>cy-y*unit,lim=cx/unit;
  const tick=unit<11?5:unit<20?2:1;
  let g='<defs><pattern id="net" x="'+cx+'" y="'+cy+'" width="'+unit*tick+'" height="'+unit*tick+'" patternUnits="userSpaceOnUse"><path d="M'+unit*tick+' 0H0V'+unit*tick+'" fill="none" stroke="#d5cfdd" stroke-width=".95"/></pattern></defs><rect width="600" height="308" fill="url(#net)"/>';
@@ -78,9 +79,14 @@ function graph(){
 function tabs(){byId('tabs').innerHTML=order.map(key=>'<button class="tab" data-key="'+key+'" aria-current="'+(mode===key)+'"><span class="glyph">'+(key==='lab'?'⌁':key)+'</span>'+config[key].name+(complete.has(key)?'<span class="tick" aria-label="решено">✓</span>':'')+'</button>').join('');}
 function feedback(message,ok=false){byId('feedback').textContent=message;byId('feedback').className=ok?'ok':'';}
 function action(text,callback){let el=document.createElement('button');el.className='action';el.textContent=text;el.onclick=callback;byId('buttons').append(el);}
+const attempts = {a:0,b:0,c:0};
 function check(){
  const {a,b,c}=state();
  const valid=mode==='a'?a<0&&a>-1:mode==='b'?b===-4:c===-2;
+ if(!valid && ++attempts[mode]===1){
+ const firstHint={a:a>=0?'Отражение относительно оси x меняет направление ветвей. Какой знак задаёт это отражение?':'Направление верно. Сравни ширину двух кривых на одинаковой высоте.',b:'Посмотри на пунктирную ось симметрии. При каком знаке b она окажется справа от нуля?',c:'Сравни высоту пересечения с осью y и отметку −2.'};
+ feedback(firstHint[mode]);return;
+ }
  if(!valid){feedback(mode==='a'?(a>=0?'Нужен отрицательный a. Попробуй значение между −1 и 0.':'Ветви идут вниз. Приблизь a к нулю, чтобы расширить параболу.'):mode==='b'?'Подставь x = 2 в равенство 2 = −b/2. Какой знак получится у b?':'При x = 0 остаётся только c. Поставь его на отметку −2.');return;}
  complete.add(mode);CourseProgress.mark('arch',mode);courseFooter();tabs();feedback(mode==='a'?'Верно. При −1 < a < 0 ветви идут вниз, а парабола шире исходной.':mode==='b'?'Верно. При b = −4 вершина находится в точке (2; −4).':'Верно. Каждая точка параболы опустилась на две единицы.',true);
  byId('buttons').replaceChildren();action(mode==='c'?'Открыть мастерскую →':'Следующий опыт →',()=>select(order[order.indexOf(mode)+1]));
@@ -95,9 +101,9 @@ function challenge(){
  else {action('Пройдёт',()=>feedback('Над краями всего 3 м, хотя в центре есть 4 м. Сравни 3 с высотой катера.'));action('Заденет арку',()=>{complete.add('lab');CourseProgress.mark('arch','lab');courseFooter();mission='';tabs();challenge();graph();feedback('Верно! Над краями не хватает 20 см. Теперь можно продолжить эксперименты.',true);});}
 }
 function render(){
- tabs();const lab=mode==='lab', active=lab?keys:[mode],spec=config[mode];
+ tabs();byId('plot').classList.toggle('movable',['b','c'].includes(mode));const lab=mode==='lab', active=lab?keys:[mode],spec=config[mode];
  byId('kicker').textContent=lab?'СВОБОДНЫЙ ОПЫТ':'ОПЫТ '+(order.indexOf(mode)+1)+' ИЗ 3';
- byId('title').textContent=spec.title;byId('explain').textContent=spec.explain;
+ byId('title').textContent=spec.title;byId('explain').textContent=spec.explain+(mode==='b'?' Двигай палец по графику влево или вправо.':mode==='c'?' Потяни график вверх или вниз.':'');
  document.querySelectorAll('[data-term]').forEach(el=>{const key=el.dataset.term;el.className=active.includes(key)?'on':'';el.style.setProperty('--tint',config[key].tint);});
  byId('sliders').innerHTML=active.map(k=>{const t=config[k];return '<label class="slider" style="--tint:'+t.tint+'"><span class="shead"><span>'+k+' · '+t.label+'</span><output id="out-'+k+'">'+format(state()[k])+'</output></span><input type="range" id="slider-'+k+'" aria-label="Коэффициент '+k+'" min="'+t.min+'" max="'+t.max+'" step="'+t.step+'" value="'+state()[k]+'"><span class="limits"><span>'+format(t.min)+'</span><span>'+format(t.max)+'</span></span></label>';}).join('');
  active.forEach(k=>{byId('slider-'+k).oninput=e=>{state()[k]=Number(e.target.value);byId('out-'+k).value=format(state()[k]);if(mode==='lab'&&mission==='boat')mission='bridge';challenge();graph();};});
@@ -106,10 +112,32 @@ function render(){
 function select(key){mode=key;render();}
 byId('tabs').onclick=e=>{const tab=e.target.closest('[data-key]');if(tab)select(tab.dataset.key);};
 byId('reset').onclick=()=>{values[mode]=base();if(mission==='boat'&&mode==='lab')mission='bridge';render();};
-byId('compare').onchange=graph;illustrate();mode=order.find(key=>!complete.has(key)) || 'a';render();courseFooter();
+byId('compare').onchange=graph;illustrate();mode=order.includes(location.hash.slice(1))?location.hash.slice(1):order.find(key=>!complete.has(key)) || 'a';render();courseFooter();
 
 
 function courseFooter(){
  const n=CourseProgress.count('arch');
- byId('courseEnd').innerHTML='<span>'+ (n===4?'Урок пройден. ':'')+'Выполнено заданий: '+n+' из 4</span><a href="index.html">К карте курса →</a>';
+ byId('courseEnd').innerHTML='<span>'+ (n===4?'Урок пройден. ':'')+'Выполнено заданий: '+n+' из 4</span><a href="index.html#bench">Испытать другой катер →</a><a href="index.html">К карте курса →</a>';
 }
+
+
+const drawingSurface=byId('plot');
+function moveVertex(event){
+ if(mode!=='b' && mode!=='c')return;
+ const slider=byId('slider-'+mode);
+ const pointer=new DOMPoint(event.clientX,event.clientY).matrixTransform(drawingSurface.getScreenCTM().inverse());
+ const scale=Number(drawingSurface.dataset.unit);
+ const desired=mode==='b'?-2*state().a*(pointer.x-300)/scale:(154-pointer.y)/scale;
+ const increment=Number(slider.step);
+ slider.value=Math.round(desired/increment)*increment;
+ slider.dispatchEvent(new Event('input'));
+}
+drawingSurface.onpointerdown=event=>{
+ if(mode!=='b' && mode!=='c')return;
+ drawingSurface.setPointerCapture(event.pointerId);
+ moveVertex(event);
+};
+drawingSurface.onpointermove=event=>{
+ if(drawingSurface.hasPointerCapture(event.pointerId))moveVertex(event);
+};
+
