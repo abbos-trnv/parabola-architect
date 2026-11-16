@@ -2,7 +2,7 @@
 
 Светлая математическая студия для 9 класса. Ученик ставит точки на чертеже, подбирает линейную функцию для пандуса и строит параболическую арку. В инженерной лаборатории он проверяет, пройдёт ли под ней катер заданных размеров.
 
-[Открыть студию](https://parabola-atelier-9.pearly-mars-8154.chatgpt.site/) · [Испытать мост](https://parabola-atelier-9.pearly-mars-8154.chatgpt.site/#bench) · [Демонстрация](media/demo.webm)
+[Открыть студию](https://abbos-trnv.github.io/parabola-architect/) · [Испытать мост](https://abbos-trnv.github.io/parabola-architect/#bench) · [Демонстрация](media/demo.webm)
 
 ![Кабинет студии Графика](media/preview.png)
 
